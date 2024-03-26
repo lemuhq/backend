@@ -5,7 +5,7 @@ const UserSchema = new Schema({
     serviceType:{type:String},
     requestRef:{type:String},
     password:{type:String},
-    data:{
+   
        firstName: { type: String},
        lastName: { type: String }, 
        email: { type: String},
@@ -17,8 +17,8 @@ const UserSchema = new Schema({
        NIN: { type: String }, 
        BVN: { type: String },
        FaceImageUrl: { type: String },
-       state: {type:String}
-    },
+       state: {type:String},
+    
 
     timestamps: {
         createdAt: {
