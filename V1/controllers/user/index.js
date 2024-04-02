@@ -113,31 +113,40 @@ export const Login = async (req, res)=>{
     console.log("login")
 }
 
-export const JoinWaitList = async (req, res)=>{
-    console.log("herre",req.body.email)
-    const email = req.body.email
-    const result = new  Waitlist({email})
-    try{
-        const response = await result.save()
+export const JoinWaitList = async (req, res) => {
+    console.log("here", req.body.email);
+    const email = req.body.email;
+    const fullName = req.body.fullName;
+    try {
+        //Check if email exists
+        const userExist = await Waitlist.findOne({ email: email });
+        if (userExist) {
+            const data = {
+                message: "We appreciate the love, but it seems you've already signed up. Thank you for your interest!",
+                status: true,
+                data: null
+            };
+            return res.status(200).send(data);
+        }
+
+        // If email doesn't exist, add to waitlist
+        const result = new Waitlist({ email, fullName });
+        const response = await result.save();
         response
-       waitlistEmail(email)
+        waitlistEmail(email, fullName);
         const data = {
-            message:"Thank you for Joining our waitlist, we are on the edge of something new! we can't wait to share our updates with you",
-            status:true,
-            data:null
-        }
-
+            message: "Thank you for joining our waitlist! We are on the edge of something new and can't wait to share our updates with you.",
+            status: true,
+            data: null
+        };
         res.status(200).send(data);
-    }catch(error){
+    } catch (error) {
         const data = {
-            message:"There wass an error in your request.",
-            data:null,
-            status:false,
-        }
-        res.status(500).send(data)
+            message: "There was an error in your request.",
+            data: null,
+            status: false
+        };
+        res.status(500).send(data);
     }
-
-
-
-}
+};
 

@@ -20,7 +20,7 @@ export const PasswordCorrect = async (password, userExists) => {
 
 
 //send welcome email
-export const waitlistEmail = async (email) => {
+export const waitlistEmail = async (email, fullName) => {
     console.log("email here",email)
     const transporter = nodemailer.createTransport({
         host: 'mail.lemu.africa',
@@ -43,7 +43,7 @@ export const waitlistEmail = async (email) => {
         to: email,
         subject: 'Thank you for Joining our wait list',
         html: `
-        Hello dear,<br>
+        Hello ${fullName},<br>
 
         Welcome to Lemu, your gateway to seamless online and offline payments! We're thrilled to have you on board and eager
         to share our innovative fintech solutions with you. 🚀.<br><br>
