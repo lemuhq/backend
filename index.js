@@ -4,11 +4,19 @@ import mongoose from 'mongoose';
 import {MONGO_URL} from './V1/config/index.js'
 import cors from 'cors';
 
+const app = express()
+
+const allowedOrigins = ['https://lemu.africa', ' http://localhost:5000', ' http://localhost:3000'];
+
+const corsOptions = {
+  origin: allowedOrigins,
+  // You can also add other options like methods, headers, etc.
+};
+
 
 const port = 5000 
-const app = express()
 app.use(express.json())
-app.use(cors());
+app.use(cors(corsOptions));
 
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true }));
