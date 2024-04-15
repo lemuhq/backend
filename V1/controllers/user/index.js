@@ -1,113 +1,97 @@
  import User from "../../models/Users.js"
  import { hashPassword, waitlistEmail } from "../../utils/index.js"
  import Waitlist from "../../models/Waitlist.js";
+ import { encryptData, decryptData, generateQR , login} from "../../utils/index.js";
+ import dotenv from 'dotenv';
+ dotenv.config();
+ import fs from 'fs';
+ import pkg from 'jsonwebtoken';
  
  
  export  const Register = async (req, res)=>{
-   
-    const password = await hashPassword(req.body.password);
-    const newdata = {...req.body, password}
-    const phoneNumber = req.body.phoneNumber
-    const email = req.body.email
-    const fullname = `${req.body.firstName} ${req.body.lastName}`
+    const jwt  = pkg;
 
-    const user = new User(newdata);
+// Usage example
 
+// check if user exite
+let userExist = await User.findOne({phoneNumber: req.body.data.phoneNumber})
+if(userExist) 
 
-    function validatePhoneNumber(phoneNumber) {
-        // Regular expression for a phone number validation
-        var phoneRegex = /^0\d{10}$/;
-      
-        // Test the phone number against the regular expression
-        var isValid = phoneRegex.test(phoneNumber);
-      
-        return isValid;
-      }
+ return res.status(409).send({
+    message: "User already exist",
+    status: false,
+    data: null
+});
+//res.status(409).json("User already exist")
 
-      function validateFullname(fullname) {
-        // Regular expression to check for two names, and no numbers or special characters
-        var nameRegex = /^[a-zA-Z]+\s[a-zA-Z]+$/;
-        
-        // Test the full name against the regular expression and check for non-empty string
-        var isValid = nameRegex.test(fullname) && fullname.trim() !== '';
-        
-        return isValid;
-      }
-      
-      function validateEmail(email) {
-        // Regular expression for a simple email validation
-        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      
-        // Test the email against the regular expression and check for non-empty string
-        var isValid = emailRegex.test(email) && email.trim() !== '';
-      
-        return isValid;
-      }
-
-        
-//   function validatePin(pin) {
-//     // Regular expression for a PIN validation
-//     var pinRegex = /^\d{4}$/;
-  
-//     // Test the PIN against the regular expression
-//     var isValid = pinRegex.test(pin);
-  
-//     return isValid;
-//   }
-  
-
-
-if(!validatePhoneNumber(phoneNumber)){
-    return res.status(200).send({msg:"Invalid Phone Number!"})
+ // Encrypt the password and save it to database
+ let encrypted_password = await hashPassword(req.body.password); 
+const objectToEncrypt = {
+    accountNumber: "2504349511",
+    firstName: req.body.data.firstName,
+    lastName:req.body.data.lastName,
+    trackingReference: 1300231651122,
+    phoneNumber: req.body.data.phoneNumber,
+    email:req.body.data.email,
+    Address:req.body.data.Address
 }
-// if(!validateAge(age)){
-//     return res.status(200).send({msg:"Please enter valid Age!"})
-// }
 
-// if(!validatePin(pin)){
-//     return res.status(200).send({msg:`Invalid piin`})
-// }
-// if(!validateFullname(fullname)){
-//     return res.status(200).send({msg:`Invalid full name`})
-// }
+const encryptedText =  await encryptData(objectToEncrypt);
+console.log(encryptedText)
 
-if(!validateEmail(email)){
-    return res.status(200).send({msg:`Invalid email`})
+const createQrCode =  await generateQR(encryptedText)
+createQrCode
+const qrcodeUrl = createQrCode
+const balance = 500
+const lockPin = req.body.lockPin
+const trxPin = req.body.trxPin
+const password = encrypted_password
+
+
+// payload
+const dataTosave = {...objectToEncrypt,  qrcodeUrl, balance, lockPin, trxPin, password};
+
+// save data to database
+try{
+    let user = await  User(dataTosave)
+    await waitlistEmail(req.body.data.email, req.body.data.firstName);
+    user.save()
+     const accessToken = jwt.sign({ user: user }, 'mayorgnn@088',
+     {
+         expiresIn: '1h'
+     });
+     return res.status(200).send({
+         msg: "Login Successful",
+         accessToken,
+         //data:user
+     })
+  
+}catch(err){
+   return console.log(err)
+
 }
 
 
 
+// const decryptedText = await decryptData(encryptedText)
+// console.log(decryptedText)
 
 
-    try{
-        const userExists = await User.findOne({phoneNumber});
-
-        // console.log("user", userExists.length)
-        if (userExists) {
-            console.log(userExists)
-            return res.status(201).send({message: "User already exist" });
-        }
-
-        // make a call to Kuda 
-
-        //save to lumu database 
-        
-       const save =  await user.save()
-
-        //send an email
-      await waitlistEmail(email, fullname)
-
-        //return response to mobile app
-
-       
-        res.status(200).send({message: "Signup successful", data: save, status:true});
-
-    }catch(error){
-        console.log("error", error)
-        res.status(400).send(error);
-    }
     
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const Login = async (req, res)=>{
     console.log("login")
@@ -139,6 +123,34 @@ export const JoinWaitList = async (req, res) => {
             status: true,
             data: null
         };
+
+
+  
+
+
+
+
+        // const generateQR = async () => {
+        //     try {
+        //       console.log( "th",await QRCode.toFile('./filename.png','Some text', {color: {
+        //         dark: '#C9CACD',  // Blue dots
+        //         light: '#292D32' // Transparent background
+        //       }}))
+        //     } catch (err) {
+        //       console.error(err)
+        //     }
+        //   }
+
+        //   generateQR()
+
+          //  save image to cloud 
+
+
+    
+
+
+         
+
         res.status(200).send(data);
     } catch (error) {
         const data = {

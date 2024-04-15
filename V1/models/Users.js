@@ -4,8 +4,8 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 const UserSchema = new Schema({
     serviceType:{type:String},
     requestRef:{type:String},
+    accountNumber:{type:String},
     password:{type:String},
-   
        firstName: { type: String},
        lastName: { type: String }, 
        email: { type: String},
@@ -18,6 +18,10 @@ const UserSchema = new Schema({
        BVN: { type: String },
        FaceImageUrl: { type: String },
        state: {type:String},
+       balance: {type:Number},
+       qrcodeUrl:{type:String},
+       trxPin:{type:String},
+       lockPin:{type:String},
     
 
     timestamps: {
