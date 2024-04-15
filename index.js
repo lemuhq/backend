@@ -29,7 +29,7 @@ app.use('/user', userRoute);
 
 app.get('/', (req, res) => {
     
-   res.send('Welcome to Lemu Api, payment system for everyone')
+   res.send('Welcome to Lemu Api, payment system for everyone new update')
   })
 
 
