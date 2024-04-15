@@ -142,38 +142,55 @@ export const OurWaitlist =  async (req, res)=>{
     console.log("here", req.body.email);
     const email = req.body.email;
     const fullName = req.body.fullName;
-    try {
-        //Check if email exists
-        const userExist = await Waitlist.findOne({ email: email });
-        if (userExist) {
-            const data = {
-                message: "We appreciate the love, but it seems you've already signed up. Thank you for your interest!",
-                status: true,
-                data: null
-            };
-            return res.status(200).send(data);
-        }
-
-        // If email doesn't exist, add to waitlist
-        const result = new Waitlist({ email, fullName });
-        const response = await result.save();
-        
-       // waitlistEmail(email, fullName);
-
+    const userExist = await Waitlist.findOne({ email: email });
+    if (userExist) {
         const data = {
-            message: "Thank you for joining our waitlist! We are on the edge of something new and can't wait to share our updates with you.",
+            message: "We appreciate the love, but it seems you've already signed up. Thank you for your interest!",
             status: true,
-            data: response
-        }
-         res.set('Content-Type', 'application/json');
-        res.status(200).send(data);
-    } catch (error) {
-        const data = {
-            message: "There was an error in your request.",
-            data: error,
-            status: false
+            data: null
         };
-        res.status(500).send(data);
+        return res.status(200).send(data);
     }
+
+    try{
+
+    }catch(error){
+        console.log(error)
+    }
+
+
+    // try {
+    //     //Check if email exists
+    //     const userExist = await Waitlist.findOne({ email: email });
+    //     if (userExist) {
+    //         const data = {
+    //             message: "We appreciate the love, but it seems you've already signed up. Thank you for your interest!",
+    //             status: true,
+    //             data: null
+    //         };
+    //         return res.status(200).send(data);
+    //     }
+
+    //     // If email doesn't exist, add to waitlist
+    //     const result = new Waitlist({ email, fullName });
+    //     const response = await result.save();
+        
+    //    // waitlistEmail(email, fullName);
+
+    //     const data = {
+    //         message: "Thank you for joining our waitlist! We are on the edge of something new and can't wait to share our updates with you.",
+    //         status: true,
+    //         data: response
+    //     }
+    //      res.set('Content-Type', 'application/json');
+    //     res.status(200).send(data);
+    // } catch (error) {
+    //     const data = {
+    //         message: "There was an error in your request.",
+    //         data: error,
+    //         status: false
+    //     };
+    //     res.status(500).send(data);
+    // }
 }
 
