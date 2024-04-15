@@ -103,7 +103,7 @@ export  const waitlistEmail = async (email, fullName)=>{
         service: 'gmail',
         auth: {
             user:'lemuhq@gmail.com',
-            pass:process.env.APPPASS
+            pass:'dircpvmdzlpvbvph'
         }
     })
     
