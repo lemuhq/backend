@@ -142,17 +142,24 @@ export const OurWaitlist =  async (req, res)=>{
     console.log("here", req.body.email);
     const email = req.body.email;
     const fullName = req.body.fullName;
-    const userExist = await Waitlist.findOne({ email: email });
-    if (userExist) {
-        const data = {
-            message: "We appreciate the love, but it seems you've already signed up. Thank you for your interest!",
-            status: true,
-            data: null
-        };
-        return res.status(200).send(data);
-    }
+    //const userExist = await Waitlist.findOne({ email: email });
+    // if (userExist) {
+    //     const data = {
+    //         message: "We appreciate the love, but it seems you've already signed up. Thank you for your interest!",
+    //         status: true,
+    //         data: null
+    //     };
+    //     return res.status(200).send(data);
+    // }
 
     try{
+        const data = {
+                    message: "We appreciate the love, but it seems you've already signed up. Thank you for your interest!",
+                    status: true,
+                    data: null
+                };
+                return res.status(200).send(data);
+            
 
     }catch(error){
         console.log(error)
