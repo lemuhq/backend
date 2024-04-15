@@ -3,12 +3,13 @@ const router = express.Router();
 
 import { Register, Login, JoinWaitList,  } from "../controllers/user/index.js";
 import { CreateOtp } from '../controllers/user/otp.js';
+import { saveWaitlist } from "../controllers/user/list.js";
 
 
 
 router.post("/api/v1/register", Register);
 router.post("/api/v1/login", Login);
-router.post("/api/v1/waitlist", JoinWaitList);
+router.post("/api/v1/waitlist", saveWaitlist);
 router.post("/api/v1/createotp", CreateOtp);
 
 
