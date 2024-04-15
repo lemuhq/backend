@@ -114,10 +114,9 @@ export const JoinWaitList = async (req, res) => {
         // }
 
         // If email doesn't exist, add to waitlist
-        // const result = new Waitlist({ email, fullName });
-        // const response = await result.();
-        // response
-      await  waitlistEmail(email, fullName);
+        const result = new Waitlist({ email, fullName });
+         await result.save();
+         await  waitlistEmail(email, fullName);
 
         const data = {
             message: "Thank you for joining our waitlist! We are on the edge of something new and can't wait to share our updates with you.",
