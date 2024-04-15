@@ -27,107 +27,107 @@ export const PasswordCorrect = async (password, userExists) => {
 }
 
 
-//send welcome email
-export const waitlistEmail = async (email, fullName) => {
-    console.log("email here",email)
-    const transporter = nodemailer.createTransport({
-        // host: 'gmail',
-        // port: 465,
-        //   secure: true, // true for 465, false for other ports
-        service:'gmail',
-        auth: {
-            // user: 'support@lemu.africa', // generated ethereal user
-            // pass: 'password_support@lemu.africa' // generated ethereal password
-            user:'lemuhq@gmail.com',
-            pass:process.env.APPPASS
-        },
-        // tls: {
-        //     rejectUnauthorized: false
-        // }
-
-    });
-
-    const mailOptions = {
-        from: 'Lemu',
-        to: email,
-        subject: 'Thank you for Joining our wait list',
-        html: `
-        Hello ${fullName},<br>
-
-        Welcome to Lemu, your gateway to seamless online and offline payments! We're thrilled to have you on board and eager
-        to share our innovative fintech solutions with you. 🚀.<br><br>
-
-        At Lemu, we're committed to revolutionizing the way you handle transactions. 
-        With our upcoming product, you'll have the power to accept and make payments 
-        effortlessly, whether you're online or offline. Our unique Lemu Orange Card will enable
-         you to make secure transactions in-person, while our user-friendly mobile app will streamline your online 
-         payment experience.<br><br>
-
-        
-
-          By joining our waitlist, you're taking the first step towards unlocking access 
-          to these groundbreaking features before anyone else. As a valued member of our community,
-           you'll receive exclusive updates, sneak peeks, and early access to our platform once it's
-           ready for launch. 🌟<br><br>
-
-           But that's not all – by signing up now, you'll also have the opportunity to
-            shape the future of Lemu. We value your feedback and
-            insights, and we're eager to hear your thoughts as we continue to develop and refine our product.<br><br>
-
-         <b>What's more?</b><br>
-
-         We have a 24-hour customer service policy [you all are our trophy]. So, I’m handing you<br> over to Lemuaid.
-         She’ll be your personal account officer. Feel free to contact us anytime <br>you feel like talking.<br><br>
-
-         Thank you for your interest in Lemu.<br><br>
-         Follow us on social media: Instagram, Twitter and Facebook @lemuHQ<br><br>
-
-         Best regards,<br>
-            <b>Uhembe Nelson</b><br>
-            <b>Founder Lume</b>
-        
-        `
-    };
-
-    transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            console.log(error);
-        } else {
-            console.log('Email sent: ' + info.response);
-        }
-    });
-}
-
-// export  const waitlistEmail = async (email, fullName)=>{
+// //send welcome email
+// export const waitlistEmail = async (email, fullName) => {
+//     console.log("email here",email)
 //     const transporter = nodemailer.createTransport({
-//         service: 'gmail',
+//         // host: 'gmail',
+//         // port: 465,
+//         //   secure: true, // true for 465, false for other ports
+//         service:'gmail',
 //         auth: {
+//             // user: 'support@lemu.africa', // generated ethereal user
+//             // pass: 'password_support@lemu.africa' // generated ethereal password
 //             user:'lemuhq@gmail.com',
 //             pass:process.env.APPPASS
+//         },
+//         // tls: {
+//         //     rejectUnauthorized: false
+//         // }
+
+//     });
+
+//     const mailOptions = {
+//         from: 'Lemu',
+//         to: email,
+//         subject: 'Thank you for Joining our wait list',
+//         html: `
+//         Hello ${fullName},<br>
+
+//         Welcome to Lemu, your gateway to seamless online and offline payments! We're thrilled to have you on board and eager
+//         to share our innovative fintech solutions with you. 🚀.<br><br>
+
+//         At Lemu, we're committed to revolutionizing the way you handle transactions. 
+//         With our upcoming product, you'll have the power to accept and make payments 
+//         effortlessly, whether you're online or offline. Our unique Lemu Orange Card will enable
+//          you to make secure transactions in-person, while our user-friendly mobile app will streamline your online 
+//          payment experience.<br><br>
+
+        
+
+//           By joining our waitlist, you're taking the first step towards unlocking access 
+//           to these groundbreaking features before anyone else. As a valued member of our community,
+//            you'll receive exclusive updates, sneak peeks, and early access to our platform once it's
+//            ready for launch. 🌟<br><br>
+
+//            But that's not all – by signing up now, you'll also have the opportunity to
+//             shape the future of Lemu. We value your feedback and
+//             insights, and we're eager to hear your thoughts as we continue to develop and refine our product.<br><br>
+
+//          <b>What's more?</b><br>
+
+//          We have a 24-hour customer service policy [you all are our trophy]. So, I’m handing you<br> over to Lemuaid.
+//          She’ll be your personal account officer. Feel free to contact us anytime <br>you feel like talking.<br><br>
+
+//          Thank you for your interest in Lemu.<br><br>
+//          Follow us on social media: Instagram, Twitter and Facebook @lemuHQ<br><br>
+
+//          Best regards,<br>
+//             <b>Uhembe Nelson</b><br>
+//             <b>Founder Lume</b>
+        
+//         `
+//     };
+
+//     transporter.sendMail(mailOptions, function (error, info) {
+//         if (error) {
+//             console.log(error);
+//         } else {
+//             console.log('Email sent: ' + info.response);
 //         }
-//     })
-    
-//     async function sendEmail(to, subject, template, data) {
-//         try {
-//             const html = await ejs.renderFile(__dirname + '/views/' + template + '.ejs', data, { async: true })
-    
-//             const mailOptions = {
-//                 from: 'Lemu',
-//                 to,
-//                 subject,
-//                 html
-//             }
-    
-//             await transporter.sendMail(mailOptions)  
-            
-//             console.log('Message sent successfully!')
-//         } catch (err) {
-//             console.log('Error: ', err)
-//         }
-//     }
-    
-//     sendEmail(email, 'Thank you for Joining our wait list', 'waitlistEmail', { userName: fullName })
+//     });
 // }
+
+export  const waitlistEmail = async (email, fullName)=>{
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user:'lemuhq@gmail.com',
+            pass:process.env.APPPASS
+        }
+    })
+    
+    async function sendEmail(to, subject, template, data) {
+        try {
+            const html = await ejs.renderFile(__dirname + '/views/' + template + '.ejs', data, { async: true })
+    
+            const mailOptions = {
+                from: 'Lemu',
+                to,
+                subject,
+                html
+            }
+    
+            await transporter.sendMail(mailOptions)  
+            
+            console.log('Message sent successfully!')
+        } catch (err) {
+            console.log('Error: ', err)
+        }
+    }
+    
+    sendEmail(email, 'Thank you for Joining our wait list', 'waitlistEmail', { userName: fullName })
+}
 
 
 export const encryptData = async(objectToEncrypt)=>{
