@@ -117,7 +117,8 @@ export const JoinWaitList = async (req, res) => {
         const result = new Waitlist({ email, fullName });
         const response = await result.save();
         response
-        waitlistEmail(email, fullName);
+       // waitlistEmail(email, fullName);
+
         const data = {
             message: "Thank you for joining our waitlist! We are on the edge of something new and can't wait to share our updates with you.",
             status: true,
