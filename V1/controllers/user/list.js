@@ -1,7 +1,10 @@
 import Waitlist from "../../models/Waitlist.js";
 import User from "../../models/Users.js";
+import { waitlistEmail } from "../../utils/index.js";
 
 export const saveWaitlist = async (req, res) => {
+    const email = req.body.email
+    const fullName = req.body.fullName
    
   try {
     let dataTosave = {
@@ -10,6 +13,7 @@ export const saveWaitlist = async (req, res) => {
     }
     let user = await  Waitlist(dataTosave)
     user.save()
+    await  waitlistEmail(email, fullName);
     
     const data = {
                     message: "Thank you for joining our waitlist! We are on the edge of something new and can't wait to share our updates with you.",
