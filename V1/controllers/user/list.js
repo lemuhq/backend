@@ -2,21 +2,20 @@ import Waitlist from "../../models/Waitlist.js";
 import User from "../../models/Users.js";
 
 export const saveWaitlist = async (req, res) => {
-    const saveList = Waitlist({
+   
+  try {
+    let dataTosave = {
         email:req.body.email,
         fullName:req.body.fullName
-    });
-  try {
+    }
+    let user = await  User(dataTosave)
+    user.save()
     
-   const saveme = await saveList.save();
-   saveme
-    const data = {
-        message: "Thank you for joining our waitlist! We are on the edge of something new and can't wait to share our updates with you.",
-        status: true,
-        data: saveme
-    };
-    res.status(201).json(data);
-    console.log('Waitlist saved successfully');
+     return res.status(200).send({
+         msg: "Login Successful",
+         //accessToken,
+         //data:user
+     })
   } catch (error) {
     res.status(500).json({ message: 'Error saving waitlist', error });
     console.error('Error saving waitlist', error);
