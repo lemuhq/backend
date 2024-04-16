@@ -65,7 +65,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 //const port = 3000; // Define your port
 
-const allowedOrigins = ['https://lemu.africa', 'http://localhost:5000', 'http://localhost:3000'];
+const allowedOrigins = ['https://lemu.africa', 'http://localhost:5000', 'http://localhost:3000', 'http://localhost:3001'];
 
 const corsOptions = {
   origin: allowedOrigins,
