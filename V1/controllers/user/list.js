@@ -7,18 +7,18 @@ export const saveWaitlist = async (req, res) => {
     const fullName = req.body.fullName;
     try {
         //Check if email exists
-        const userExist = await Waitlist.findOne({ email: email });
-        if (userExist) {
-            const data = {
-                message: "We appreciate the love, but it seems you've already signed up. Thank you for your interest!",
-                status: true,
-                data: null
-            };
-            return res.status(200).send(data);
-        }
+        // const userExist = await Waitlist.findOne({ email: email });
+        // if (userExist) {
+        //     const data = {
+        //         message: "We appreciate the love, but it seems you've already signed up. Thank you for your interest!",
+        //         status: true,
+        //         data: null
+        //     };
+        //     return res.status(200).send(data);
+        // }
 
         // If email doesn't exist, add to waitlist
-        const result = new Waitlist({ email, fullName });
+        const result = Waitlist({ email, fullName });
          await result.save();
          await  waitlistEmail(email, fullName);
 
