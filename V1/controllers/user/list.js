@@ -8,7 +8,7 @@ export const saveWaitlist = async (req, res) => {
         email:req.body.email,
         fullName:req.body.fullName
     }
-    let user = await  User(dataTosave)
+    let user = await  Waitlist(dataTosave)
     user.save()
     
      return res.status(200).send({
