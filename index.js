@@ -93,7 +93,10 @@ app.get('/', (req, res) => {
 });
 
 // connect to mongodb
-mongoose.connect(MONGO_URL, {})
+mongoose.connect(MONGO_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
   .then(() => console.log('Connected to MongoDB...'))
   .catch(err => console.error('Could not connect to MongoDB...', err));
 
