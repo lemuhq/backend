@@ -22,6 +22,7 @@ const UserSchema = new Schema({
        qrcodeUrl:{type:String},
        trxPin:{type:String},
        lockPin:{type:String},
+       fullName:{type:String},
     
 
     timestamps: {

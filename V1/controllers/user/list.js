@@ -1,7 +1,8 @@
 import Waitlist from "../../models/Waitlist.js";
+import User from "../../models/Users.js";
 
 export const saveWaitlist = async (req, res) => {
-    const saveList = new Waitlist({
+    const saveList = Waitlist({
         email:req.body.email,
         fullName:req.body.fullName
     });
