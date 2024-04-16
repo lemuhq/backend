@@ -62,7 +62,8 @@ import cors from 'cors';
 import { userRoute } from './V1/routes/userRoute.js';
 
 const app = express();
-const port = 3000; // Define your port
+const PORT = process.env.PORT || 3000;
+//const port = 3000; // Define your port
 
 const allowedOrigins = ['https://lemu.africa', 'http://localhost:5000', 'http://localhost:3000'];
 
@@ -96,6 +97,6 @@ mongoose.connect(MONGO_URL, {})
   .then(() => console.log('Connected to MongoDB...'))
   .catch(err => console.error('Could not connect to MongoDB...', err));
 
-app.listen(port, () => {
-  console.log(`Lume pay listening at http://localhost:${port}`);
+app.listen(PORT, () => {
+  console.log(`Lume pay listening at http://localhost:${PORT}`);
 });
