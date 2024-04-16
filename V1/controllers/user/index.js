@@ -8,77 +8,77 @@
  import pkg from 'jsonwebtoken';
  
  
- export  const Register = async (req, res)=>{
-    const jwt  = pkg;
+//  export  const Register = async (req, res)=>{
+//     const jwt  = pkg;
 
-// Usage example
+// // Usage example
 
-// check if user exite
-let userExist = await User.findOne({phoneNumber: req.body.data.phoneNumber})
-if(userExist) 
+// // check if user exite
+// let userExist = await User.findOne({phoneNumber: req.body.data.phoneNumber})
+// if(userExist) 
 
- return res.status(409).send({
-    message: "User already exist",
-    status: false,
-    data: null
-});
-//res.status(409).json("User already exist")
+//  return res.status(409).send({
+//     message: "User already exist",
+//     status: false,
+//     data: null
+// });
+// //res.status(409).json("User already exist")
 
- // Encrypt the password and save it to database
- let encrypted_password = await hashPassword(req.body.password); 
-const objectToEncrypt = {
-    accountNumber: "2504349511",
-    firstName: req.body.data.firstName,
-    lastName:req.body.data.lastName,
-    trackingReference: 1300231651122,
-    phoneNumber: req.body.data.phoneNumber,
-    email:req.body.data.email,
-    Address:req.body.data.Address
-}
+//  // Encrypt the password and save it to database
+//  let encrypted_password = await hashPassword(req.body.password); 
+// const objectToEncrypt = {
+//     accountNumber: "2504349511",
+//     firstName: req.body.data.firstName,
+//     lastName:req.body.data.lastName,
+//     trackingReference: 1300231651122,
+//     phoneNumber: req.body.data.phoneNumber,
+//     email:req.body.data.email,
+//     Address:req.body.data.Address
+// }
 
-const encryptedText =  await encryptData(objectToEncrypt);
-console.log(encryptedText)
+// const encryptedText =  await encryptData(objectToEncrypt);
+// console.log(encryptedText)
 
-const createQrCode =  await generateQR(encryptedText)
-createQrCode
-const qrcodeUrl = createQrCode
-const balance = 500
-const lockPin = req.body.lockPin
-const trxPin = req.body.trxPin
-const password = encrypted_password
+// const createQrCode =  await generateQR(encryptedText)
+// createQrCode
+// const qrcodeUrl = createQrCode
+// const balance = 500
+// const lockPin = req.body.lockPin
+// const trxPin = req.body.trxPin
+// const password = encrypted_password
 
 
-// payload
-const dataTosave = {...objectToEncrypt,  qrcodeUrl, balance, lockPin, trxPin, password};
+// // payload
+// const dataTosave = {...objectToEncrypt,  qrcodeUrl, balance, lockPin, trxPin, password};
 
-// save data to database
-try{
-    let user = await  User(dataTosave)
-    await waitlistEmail(req.body.data.email, req.body.data.firstName);
-    user.save()
-     const accessToken = jwt.sign({ user: user }, 'mayorgnn@088',
-     {
-         expiresIn: '1h'
-     });
-     return res.status(200).send({
-         msg: "Login Successful",
-         accessToken,
-         //data:user
-     })
+// // save data to database
+// try{
+//     let user = await  User(dataTosave)
+//     await waitlistEmail(req.body.data.email, req.body.data.firstName);
+//     user.save()
+//      const accessToken = jwt.sign({ user: user }, 'mayorgnn@088',
+//      {
+//          expiresIn: '1h'
+//      });
+//      return res.status(200).send({
+//          msg: "Login Successful",
+//          accessToken,
+//          //data:user
+//      })
   
-}catch(err){
-   return console.log(err)
+// }catch(err){
+//    return console.log(err)
 
-}
+// }
 
 
 
-// const decryptedText = await decryptData(encryptedText)
-// console.log(decryptedText)
+// // const decryptedText = await decryptData(encryptedText)
+// // console.log(decryptedText)
 
 
     
-}
+// }
 
 
 
@@ -93,9 +93,9 @@ try{
 
 
 
-export const Login = async (req, res)=>{
-    console.log("login")
-}
+// export const Login = async (req, res)=>{
+//     console.log("login")
+// }
 
 // export const JoinWaitList = async (req, res) => {
 //     console.log("here", req.body.email);

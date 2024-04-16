@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+// import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import User from "../models/Users.js";
 import CryptoJS from 'crypto-js';
@@ -15,16 +15,16 @@ const passcode = process.env.ENCRYPTION_KEY;
 
 
 //hash password
-export const hashPassword = async (password) => {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    return hashedPassword;
-}
-//check if password is correct
-export const PasswordCorrect = async (password, userExists) => {
-    const passwordCorrect = await bcrypt.compare(password, userExists.password);
-    return passwordCorrect;
-}
+// export const hashPassword = async (password) => {
+//     const salt = await bcrypt.genSalt(10);
+//     const hashedPassword = await bcrypt.hash(password, salt);
+//     return hashedPassword;
+// }
+// //check if password is correct
+// export const PasswordCorrect = async (password, userExists) => {
+//     const passwordCorrect = await bcrypt.compare(password, userExists.password);
+//     return passwordCorrect;
+// }
 
 
 // //send welcome email
