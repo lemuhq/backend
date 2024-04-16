@@ -1,14 +1,18 @@
 import Waitlist from "../../models/Waitlist.js";
 
 export const saveWaitlist = async (req, res) => {
-    const saveList = new Waitlist(req.body);
+    const saveList = new Waitlist({
+        email:req.body.email,
+        fullName:req.body.fullName
+    });
   try {
     
-    await saveList.save();
+   const saveme = await saveList.save();
+   saveme
     const data = {
         message: "Thank you for joining our waitlist! We are on the edge of something new and can't wait to share our updates with you.",
         status: true,
-        data: saveList
+        data: saveme
     };
     res.status(201).json(data);
     console.log('Waitlist saved successfully');
