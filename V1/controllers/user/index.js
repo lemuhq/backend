@@ -1,7 +1,7 @@
  import User from "../../models/Users.js"
- import { hashPassword, waitlistEmail } from "../../utils/index.js"
+ import {  waitlistEmail } from "../../utils/index.js"
  import Waitlist from "../../models/Waitlist.js";
- import { encryptData, decryptData, generateQR , login} from "../../utils/index.js";
+ import { encryptData, decryptData, generateQR } from "../../utils/index.js";
  import dotenv from 'dotenv';
  dotenv.config();
  import fs from 'fs';
