@@ -4,7 +4,7 @@ export const saveWaitlist = async (req, res) => {
     
   try {
     const saveList = new Waitlist(req.body);
-    await saveList.create();
+    await saveList.save();
     const data = {
         message: "Thank you for joining our waitlist! We are on the edge of something new and can't wait to share our updates with you.",
         status: true,
