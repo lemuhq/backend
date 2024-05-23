@@ -1,4 +1,4 @@
-// import bcrypt from "bcrypt";
+import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import User from "../models/Users.js";
 import CryptoJS from 'crypto-js';
@@ -7,6 +7,9 @@ import pkg from 'jsonwebtoken';
 import ejs from 'ejs'
 import path from 'path';
 const __dirname = path.resolve();
+import { v2 as cloudinary } from 'cloudinary'
+import Transaction from "../models/Transaction.js";
+
  
 import dotenv from 'dotenv';
 dotenv.config();
@@ -15,16 +18,19 @@ const passcode = process.env.ENCRYPTION_KEY;
 
 
 //hash password
-// export const hashPassword = async (password) => {
-//     const salt = await bcrypt.genSalt(10);
-//     const hashedPassword = await bcrypt.hash(password, salt);
-//     return hashedPassword;
-// }
-// //check if password is correct
-// export const PasswordCorrect = async (password, userExists) => {
-//     const passwordCorrect = await bcrypt.compare(password, userExists.password);
-//     return passwordCorrect;
-// }
+export const hashPassword = async (password) => {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    return hashedPassword;
+}
+//check if password is correct
+export const PasswordCorrect = async (req, userExists) => {
+  
+    const password = req.body.password
+    console.log("pass", password)
+    const passwordCorrect = await bcrypt.compare(password, userExists.password);
+    return passwordCorrect;
+}
 
 
 // //send welcome email
@@ -121,12 +127,80 @@ export  const waitlistEmail = async (email, fullName)=>{
             await transporter.sendMail(mailOptions)  
             
             console.log('Message sent successfully!')
+            return true
         } catch (err) {
             console.log('Error: ', err)
+            return false
         }
     }
     
     sendEmail(email, 'Thank you for Joining our wait list', 'waitlistEmail', { userName: fullName })
+}
+
+export  const TransferEmailToSender = async (email, senderName, transact, emailAmount)=>{
+  const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+          user:'lemuhq@gmail.com',
+          pass:'dircpvmdzlpvbvph'
+      }
+  })
+  
+  async function sendEmail(to, subject, template, data) {
+      try {
+          const html = await ejs.renderFile(__dirname + '/views/' + template + '.ejs', data, { async: true })
+  
+          const mailOptions = {
+              from: 'Lemu',
+              to,
+              subject,
+              html
+          }
+  
+          await transporter.sendMail(mailOptions)  
+          
+          console.log('Message sent successfully!')
+          return true
+      } catch (err) {
+          console.log('Error: ', err)
+          return false
+      }
+  }
+  
+  sendEmail(email, 'Transaction Notification', 'senderTransferEmail', { userName: senderName, data:transact })
+}
+
+export  const TransferEmailToReciver = async (reciverEmail, reciverName, senderName, transact)=>{
+  const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+          user:'lemuhq@gmail.com',
+          pass:'dircpvmdzlpvbvph'
+      }
+  })
+  
+  async function sendEmail(to, subject, template, data) {
+      try {
+          const html = await ejs.renderFile(__dirname + '/views/' + template + '.ejs', data, { async: true })
+  
+          const mailOptions = {
+              from: 'Lemu',
+              to,
+              subject,
+              html
+          }
+  
+          await transporter.sendMail(mailOptions)  
+          
+          console.log('Message sent successfully!')
+          return true
+      } catch (err) {
+          console.log('Error: ', err)
+          return false
+      }
+  }
+  
+  sendEmail(reciverEmail, 'Transaction Notification', 'reciverTransferEmail', { userName: reciverName, data:transact, senderName:senderName })
 }
 
 
@@ -154,11 +228,13 @@ export const decryptData = async(encryptedText)=>{
           throw new Error('Decrytion failed')
       }
 
-    }catch(err){
-        throw new Error('Decrytion failed', err)
+    }catch(error){
+        throw new Error('Decrytion failed', error)
     }   
 
 }
+
+
 
 
 
@@ -193,10 +269,11 @@ export const generateQR = async (encryptedText) => {
   };
 
 
-  export const login = async ( res, req) =>{
+  export const Dologin = async ( res, req) =>{
+    const jwt  = pkg;
     console.log("working here", req.body)
     const phoneNumber = req.body.phoneNumber;
-    const password = req.body.passwoord
+ 
     try {
       //check if user with email already exists
       const userExists = await User.findOne({phoneNumber});
@@ -204,29 +281,47 @@ export const generateQR = async (encryptedText) => {
           return res.status(404).send({ msg: "User does not exist" });
       }
       //check if password is correct
-      const passwordCorrect = await PasswordCorrect(password, userExists);
+      const passwordCorrect = await PasswordCorrect(req, userExists);
       if (passwordCorrect) {
           const user = {
              data: userExists
           }
           const accessToken = jwt.sign({ user: user }, 'mayorgnn@088',
           {
-              expiresIn: '1h'
+              expiresIn: '8760h'
           });
+          console.log("userr", user.data)
+          const newdata = {
+            passcode:user.data.lockPin,
+            FaceImageUrl:user.data.FaceImageUrl,
+            firstName:user.data.firstName,
+            lastName:user.data.lastName
+
+
+          }
           return res.status(200).send({
-              message: "Login Successful",
+              msg: "Login Successful",
               status:true,
               accessToken,
-             // data:user
+              data:newdata
           })
       }
       if (!passwordCorrect) {
-          return res.status(404).send({ msg: "Password is incorrect" });
+          return res.status(404).send({
+             msg: "Password is incorrect" ,
+             status:false
+            });
       }
   } catch (error) {
-      res.status(400).send(error);
+      res.status(400).send({
+        msg: "There was a network error please try again" ,
+        status:false
+       
+      });
   }
   }
+
+
 
   export const sendSms = async (data) =>{
 
@@ -250,3 +345,357 @@ export const generateQR = async (encryptedText) => {
     })
 
 }
+
+export  const emailOtp = async (email, token)=>{
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user:'lemuhq@gmail.com',
+            pass:'dircpvmdzlpvbvph'
+        }
+    })
+    
+    async function sendEmail(to, subject, template, data) {
+        try {
+            const html = await ejs.renderFile(__dirname + '/views/' + template + '.ejs', data, { async: true })
+    
+            const mailOptions = {
+                from: 'Lemu',
+                to,
+                subject,
+                html
+            }
+    
+            await transporter.sendMail(mailOptions)  
+            console.log('Message sent successfully!')
+            return true
+        } catch (err) {
+
+            console.log('Error here: ', err)
+            return false
+        }
+    }
+    
+    sendEmail(email, 'Lume Email Verification ', 'otpEmail', { token: token })
+}
+
+
+export const uploadloadImg = async (req, res) => {
+  // Append the upload preset to the formData
+  formData.append('upload_preset', 'Qrcode');
+
+  const uploadResponse = await fetch(
+      `https://api.cloudinary.com/v1_1/${process.env.CLOUDNAME}/image/upload`,
+      {
+          method: 'POST',
+          body: formData,
+          // Don't forget to set headers to inform Cloudinary about the FormData content type
+          headers: {
+              'Content-Type': 'multipart/form-data',
+          },
+      }
+  );
+
+  const uploadData = await uploadResponse.json();
+
+  console.log("checking", uploadData);
+};
+
+
+export const verifyAccountNumber = async (req, res) => {
+    let accountNumber = req.body.accountNumber;
+    // find user with account number
+    try {
+      let user = await User.findOne({ accountNumber: accountNumber });
+      if (user) {
+        const newData = {
+          accountName: user.firstName +" "+ user.lastName ,
+          // Corrected line
+        };
+        const data = {
+            status:true,
+            msg:"User Found!",
+            data:newData
+        }
+        return res.status(200).send(data);
+      }else{
+        const data = {
+            status:false,
+            msg:"User with Account number not found",
+        }
+        return res.status(200).send(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+export const transfer = async(req, res)=>{
+
+  console.log("my daata",req.body)
+
+  const transactionReference = await generateTransactionReference()
+
+  // validation 
+  const {amount, narration, pin, bankName, bankCode, paymentMethod} = req.body;
+
+  if(!amount || !narration || !pin || !bankName || !bankCode || !paymentMethod){
+    const data = {
+      msg:"Please provide all required fields",
+      status:false
+    }
+    return res.status(200).send(data);
+  }
+  
+  //find the customer by account number 
+  const reciver = req.body.accountNumber;
+  const findReciver = await User.findOne({accountNumber:reciver})
+  
+
+  // find sender and check account balance
+  //const sender = req.user.data
+  const getSender = await User.findOne({_id: req.user.data._id})
+  let sender = getSender
+  // check if pin is cccorrect
+  console.log("pin",sender.pin)
+  if(sender.trxpin !== req.body.pin){
+    const data={
+      status : false,
+      msg : "Invalid Transaction Pin"
+    }
+    return res.status(200).send(data);
+  }
+
+  if(amount > sender.balance){
+    const data = {
+      msg:"Insufficient funds",
+      status:false
+    }
+    return res.status(200).send(data);
+  }
+
+  //remove funds from sender
+  let updateSenderBalance = parseInt(sender.balance)  - parseInt(amount) 
+  const newSender = await User.updateOne({_id :sender._id}, {balance:updateSenderBalance});
+  newSender
+
+  //add to reciever
+  
+
+  //save transaction
+  const transact = new Transaction({
+    senderId: sender._id,
+    recipientId: findReciver._id,
+    senderName: sender.firstName +" "+ sender.lastName,
+    recipientName:findReciver.firstName +" "+ findReciver.lastName,
+    transactionReference:transactionReference,
+    amount: amount,
+    type:'transfer',
+    status:'pending',
+    description:req.body.narration,
+    paymentMethod:req.body.paymentMethod,
+    bankName:req.body.bankName
+  })
+  try{
+     await transact.save()
+     .then((transaction) => {
+      transaction
+      //  console.log('Transaction created', transaction)
+     })
+  //add funds to reciever
+
+  let addAmountToReciever = parseInt(findReciver.balance ) + parseInt(amount);
+  const newReciever = await User.updateOne({_id:findReciver._id},{balance:addAmountToReciever})
+
+  if(newReciever) {
+    // update transaaction status to approved 
+    transact.status='approved'
+    await transact.save();
+    const senderEmail = sender.email;
+    const senderName = sender.firstName +" "+ sender.lastName;
+    const reciverName =  findReciver.firstName +" "+ sender.lastName;
+    const reciverEmail = findReciver.email
+    // const emailAmount = amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+    TransferEmailToSender(senderEmail, senderName, transact)
+    TransferEmailToReciver(reciverEmail, reciverName, senderName, transact)
+    const data = {
+      msg:"Transfer Successful",
+      data:transact,
+      status:true
+    }
+    return res.status(200).send(data);
+  }
+
+
+
+}catch(error){
+  const data ={
+    msg:"Transfer was not succuessful",
+    status:false
+  }
+  return res.status(200).send(data);
+
+}
+}
+
+
+export const  generateTransactionReference = async()=> {
+  // Get current date in YYYYMMDD format
+  const currentDate = new Date();
+  const datePart = currentDate.toISOString().slice(0,10).replace(/-/g,"");
+
+  // Generate random characters for the remaining digits
+  const randomPartLength = 30 - datePart.length;
+  let randomPart = '';
+  for (let i = 0; i < randomPartLength; i++) {
+      randomPart += Math.floor(Math.random() * 10); // Random digit between 0 and 9
+  }
+
+  // Concatenate date part and random part
+  const transactionReference = datePart + randomPart;
+
+  return transactionReference;
+}
+
+export const  generateAccountNumber = async()=> {
+  // Get current date in YYYYMMDD format
+  const currentDate = new Date();
+  const datePart = currentDate.toISOString().slice(0,10).replace(/-/g,"");
+
+  // Generate random characters for the remaining digits
+  const randomPartLength = 10 - datePart.length;
+  let randomPart = '';
+  for (let i = 0; i < randomPartLength; i++) {
+      randomPart += Math.floor(Math.random() * 10); // Random digit between 0 and 9
+  }
+
+  // Concatenate date part and random part
+  const transactionReference = datePart + randomPart;
+
+  return transactionReference;
+}
+
+export const getAllTransacctionByUser = async(req, res)=>{
+  try{
+    const transacction = await Transaction.find({user: req.user._id});
+    console.log("all trx here", transacction)
+
+    const data ={
+      msg:"all transactions by user",
+      status:true,
+      data:transacction
+    }
+    return res.status(200).send(data);
+  }catch(error){
+    console.log(error);
+  }
+}
+
+
+export const getPaid = async(req, res)=>{
+
+  const transactionReference = await generateTransactionReference()
+
+  // validation 
+  const {amount, narration, pin} = req.body;
+
+  // if(!amount || !narration || !pin){
+  //   const data = {
+  //     msg:"Please provide all required fields",
+  //     status:false
+  //   }
+  //   return res.status(200).send(data);
+  // }
+  
+  // //find the customer by account number 
+   const findSender = req.body.accountNumber;
+   const sender = await User.findOne({accountNumber:findSender})
+
+   
+  
+
+  // // find reciver and check account balance
+  //const findReciver = req.user.data
+   const findReciver = await User.findOne({_id: req.user.data._id})
+  // let sender = getSender
+  // // check if pin is cccorrect
+  // console.log("pin",sender.pin)
+  // if(sender.trxpin !== req.body.pin){
+  //   const data={
+  //     status : false,
+  //     msg : "Invalid Transaction Pin"
+  //   }
+  //   return res.status(200).send(data);
+  // }
+
+  if(amount > sender.balance){
+    const data = {
+      msg:"Insufficient funds",
+      status:false
+    }
+    return res.status(200).send(data);
+  }
+
+  // //remove funds from sender
+  let updateSenderBalance = parseInt(sender.balance)  - parseInt(amount) 
+  const newSender = await User.updateOne({_id :sender._id}, {balance:updateSenderBalance});
+  // newSender
+
+  // //add to reciever
+  
+
+  //save transaction
+  const transact = new Transaction({
+    senderId: sender._id,
+    recipientId: findReciver._id,
+    senderName: sender.firstName +" "+ sender.lastName,
+    recipientName:findReciver.firstName +" "+ findReciver.lastName,
+    transactionReference:transactionReference,
+    amount: amount,
+    type:'transfer',
+    status:'pending',
+    description:req.body.narration,
+    paymentMethod:req.body.paymentMethod,
+    bankName:req.body.bankName
+  })
+  try{
+     await transact.save()
+     .then((transaction) => {
+      transaction
+      //  console.log('Transaction created', transaction)
+     })
+  //add funds to reciever
+
+  let addAmountToReciever = parseInt(findReciver.balance ) + parseInt(amount);
+  const newReciever = await User.updateOne({_id:findReciver._id},{balance:addAmountToReciever})
+
+  if(newReciever) {
+    // update transaaction status to approved 
+    transact.status='approved'
+    await transact.save();
+    const senderEmail = sender.email;
+    const senderName = sender.firstName +" "+ sender.lastName;
+    const reciverName =  findReciver.firstName +" "+ sender.lastName;
+    const reciverEmail = findReciver.email
+    // const emailAmount = amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+    TransferEmailToSender(senderEmail, senderName, transact)
+    TransferEmailToReciver(reciverEmail, reciverName, senderName, transact)
+    const data = {
+      msg:"Transfer Successful",
+      data:transact,
+      status:true
+    }
+    return res.status(200).send(data);
+  }
+}catch(error){
+  const data ={
+   msg:"Transfer was not succuessful",
+   status:false
+  }
+  return res.status(200).send(data);
+
+}
+}
+
+

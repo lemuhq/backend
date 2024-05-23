@@ -20,7 +20,7 @@ const UserSchema = new Schema({
        state: {type:String},
        balance: {type:Number},
        qrcodeUrl:{type:String},
-       trxPin:{type:String},
+       trxpin:{type:String},
        lockPin:{type:String},
        fullName:{type:String},
     
