@@ -203,6 +203,44 @@ export  const TransferEmailToReciver = async (reciverEmail, reciverName, senderN
   sendEmail(reciverEmail, 'Transaction Notification', 'reciverTransferEmail', { userName: reciverName, data:transact, senderName:senderName })
 }
 
+export  const DeleteLinkEmail = async (email, firstName, lastName, url)=>{
+  const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+          user:'lemuhq@gmail.com',
+          pass:'dircpvmdzlpvbvph'
+      }
+  })
+  
+  async function sendEmail(to, subject, template, data) {
+      try {
+          const html = await ejs.renderFile(__dirname + '/views/' + template + '.ejs', data, { async: true })
+  
+          const mailOptions = {
+              from: 'Lemu',
+              to,
+              subject,
+              html
+          }
+  
+          await transporter.sendMail(mailOptions)  
+          
+          console.log('Message sent successfully!')
+          return true
+      } catch (err) {
+          console.log('Error: ', err)
+          return false
+      }
+  }
+  
+  sendEmail(email, 'Delete Account Notification', 'DeleteAccountEmail', { email, firstName, lastName, url, data:url})
+}
+
+
+
+
+
+
 
 export const encryptData = async(objectToEncrypt)=>{
     try {
@@ -697,5 +735,86 @@ export const getPaid = async(req, res)=>{
 
 }
 }
+
+//email delete account url to user email 
+export const SendDeleteUrl = async(req, res)=>{
+  // find user with phone number
+  console.log(req.body)
+
+  const user = await User.findOne({phoneNumber:req.body.phoneNumber})
+  console.log("there", user)
+  try{
+    if(user){
+      console.log("user", user)
+      const { _id, phoneNumber, firstName, lastName, email} = user
+      const url = `https://lemu.africa/deleteAccount/${_id}/${firstName}/${lastName}/${phoneNumber}`
+      //send email to user with delete link
+      DeleteLinkEmail(email, firstName, lastName, url)
+      if(DeleteLinkEmail){
+        const data = {
+          msg:"A Delete link has been sent to your registed email address",
+          status:true
+        }
+        return res.status(200).send(data);
+      }else{
+        const data = {
+          msg:"An error occured while sending the delete link",
+          status:false
+        }
+        return res.status(200).send(data);
+      }
+    }else{
+      const data = {
+        msg:"User with phone number was not found, please check the phone number again",
+        status:false
+      }
+      return res.status(200).send(data);
+
+    }
+
+  }catch(error){
+    const data ={
+      msg:"An error occured while sending the delete link",
+      status:false
+    }
+    return res.status(200).send(data);
+
+  }
+  
+
+}
+
+
+export const DeleteAccount = async(req, res)=>{
+  console.log("req", req.body)
+  try{
+    let userId= req.body.userId;
+    let phone = req.body.phoneNumber 
+    let newphone = "d"+phone
+    const getuser = await User.findOne({phoneNumber:req.body.phoneNumber})
+    if(getuser){
+      await User.updateOne({_id:userId},{$set:{ status : 'deactivated', phoneNumber:newphone }});
+      const data = {
+         status : true,
+         msg:"Account Deleted Successfully"
+       }
+       console.log("working heere")
+      return res.status(200).json(data);
+
+    }else{
+      const data = {
+        status : false,
+        msg:"User with phone number was not found, please check the phone number again"
+      }
+      return res.status(200).json(data);
+    }
+    
+}catch(e){
+    return res.status(500).json({msg:"Server Error!"})
+}
+}
+
+
+
 
 

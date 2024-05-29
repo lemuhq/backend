@@ -23,6 +23,7 @@ const UserSchema = new Schema({
        trxpin:{type:String},
        lockPin:{type:String},
        fullName:{type:String},
+       status:{type:String},
     
 
     timestamps: {

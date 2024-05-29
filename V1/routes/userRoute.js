@@ -9,6 +9,9 @@ import { getCurrentUser } from "../controllers/user/getCurrentUser.js";
 import { doTransfer , doGetPaid} from "../controllers/Transfer/Index.js";
 import { decodeData } from "../controllers/user/decodeData.js";
 import { getAllTrxByUser } from "../controllers/user/getAllTrxByUser.js";
+import { DeleteRequest } from "../controllers/user/deleteRequest.js";
+import { DeleteAccount } from "../utils/index.js";
+
 
 
 
@@ -24,6 +27,8 @@ router.post("/api/v1/transfer", ValidateToken, doTransfer)
 router.post("/api/v1/decodeData", ValidateToken, decodeData)
 router.get("/api/v1/getAllTrxByUser",ValidateToken, getAllTrxByUser)
 router.post("/api/v1/getPaid", ValidateToken, doGetPaid)
+router.post("/api/v1/requestDeleteAccount", DeleteRequest)
+router.post("/api/v1/deleteAccount", DeleteAccount)
 
 
 
