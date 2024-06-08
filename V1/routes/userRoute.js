@@ -1,7 +1,7 @@
 import  express from "express";
 const router = express.Router();
 
-import {  JoinWaitList,uplaodTocloud, Register, Login, VerifyAccount  } from "../controllers/user/index.js";
+import {  JoinWaitList,uplaodTocloud, Register, Login, VerifyAccount, SaveB } from "../controllers/user/index.js";
 import { CreateOtp, verifyOTP } from '../controllers/user/otp.js';
 import { saveWaitlist } from "../controllers/user/list.js";
 import { ValidateToken } from "../middleware/validateToken.js";
@@ -11,6 +11,7 @@ import { decodeData } from "../controllers/user/decodeData.js";
 import { getAllTrxByUser } from "../controllers/user/getAllTrxByUser.js";
 import { DeleteRequest } from "../controllers/user/deleteRequest.js";
 import { DeleteAccount } from "../utils/index.js";
+
 
 
 
@@ -29,6 +30,8 @@ router.get("/api/v1/getAllTrxByUser",ValidateToken, getAllTrxByUser)
 router.post("/api/v1/getPaid", ValidateToken, doGetPaid)
 router.post("/api/v1/requestDeleteAccount", DeleteRequest)
 router.post("/api/v1/deleteAccount", DeleteAccount)
+router.post("/api/v1/saveBeneficiary",ValidateToken, SaveB)
+
 
 
 

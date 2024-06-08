@@ -1,7 +1,7 @@
  import User from "../../models/Users.js"
  import {  waitlistEmail } from "../../utils/index.js"
  import Waitlist from "../../models/Waitlist.js";
- import { encryptData, decryptData, generateQR, uploadloadImg, hashPassword, Dologin, verifyAccountNumber, generateAccountNumber } from "../../utils/index.js";
+ import { saveBeneficiary, encryptData, decryptData, generateQR, uploadloadImg, hashPassword, Dologin, verifyAccountNumber, generateAccountNumber } from "../../utils/index.js";
  import dotenv from 'dotenv';
  dotenv.config();
  import fs from 'fs';
@@ -19,6 +19,9 @@
     const AccNumber = await generateAccountNumber()
     console.log("hetr",req.body)
     const jwt  = pkg;
+    const email = req.body.email
+    const fullName = req.body.firstName +" "+ req.body.lastName
+
 
 // Usage example
 
@@ -49,7 +52,8 @@ const objectToEncrypt = {
     Address:req.body.Address,
     FaceImageUrl:req.body.FaceImageUrl,
     trxpin:req.body.trxpin,
-    lockPin:req.body.lockPin
+    lockPin:req.body.lockPin,
+    token:req.body.token
 
 }
 const saveDate = {
@@ -62,7 +66,8 @@ const saveDate = {
     Address:req.body.Address,
     FaceImageUrl:req.body.FaceImageUrl,
     trxpin:req.body.trxpin,
-    lockPin:req.body.lockPin
+    lockPin:req.body.lockPin,
+    token:req.body.token
 
 }
 
@@ -88,6 +93,7 @@ try{
      {
          expiresIn: '1h'
      });
+     await waitlistEmail(email, fullName); 
      return res.status(200).send({
          msg: "Login Successful",
          accessToken,
@@ -237,5 +243,9 @@ export const uplaodTocloud = async(req,res) =>{
 
 export const VerifyAccount = async(req, res)=>{
     verifyAccountNumber(req, res)
+}
+
+export const SaveB = async(req, res)=>{
+    saveBeneficiary(req, res)
 }
  

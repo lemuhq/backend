@@ -9,12 +9,18 @@ import path from 'path';
 const __dirname = path.resolve();
 import { v2 as cloudinary } from 'cloudinary'
 import Transaction from "../models/Transaction.js";
+import admin from 'firebase-admin'
 
  
 import dotenv from 'dotenv';
 dotenv.config();
 
 const passcode = process.env.ENCRYPTION_KEY;
+
+const serviceAccount = 'V1/config/firebaseKKey.json'
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 
 
 //hash password
@@ -414,7 +420,7 @@ export  const emailOtp = async (email, token)=>{
         }
     }
     
-    sendEmail(email, 'Lume Email Verification ', 'otpEmail', { token: token })
+    sendEmail(email, 'Lemu Email Verification ', 'otpEmail', { token: token })
 }
 
 
@@ -448,6 +454,8 @@ export const verifyAccountNumber = async (req, res) => {
       if (user) {
         const newData = {
           accountName: user.firstName +" "+ user.lastName ,
+          token:user.token,
+          accountNumber:user.accountNumber
           // Corrected line
         };
         const data = {
@@ -533,7 +541,8 @@ export const transfer = async(req, res)=>{
     status:'pending',
     description:req.body.narration,
     paymentMethod:req.body.paymentMethod,
-    bankName:req.body.bankName
+    bankName:req.body.bankName, 
+    token:req.body.token
   })
   try{
      await transact.save()
@@ -552,11 +561,16 @@ export const transfer = async(req, res)=>{
     await transact.save();
     const senderEmail = sender.email;
     const senderName = sender.firstName +" "+ sender.lastName;
-    const reciverName =  findReciver.firstName +" "+ sender.lastName;
+    const reciverName =  findReciver.firstName +" "+ findReciver.lastName;
     const reciverEmail = findReciver.email
+    const token = req.body.token
+    const message = `${senderName} sent you ${req.body.amount} `
     // const emailAmount = amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
     TransferEmailToSender(senderEmail, senderName, transact)
     TransferEmailToReciver(reciverEmail, reciverName, senderName, transact)
+
+    sendNotification(token, message)
+
     const data = {
       msg:"Transfer Successful",
       data:transact,
@@ -812,6 +826,44 @@ export const DeleteAccount = async(req, res)=>{
 }catch(e){
     return res.status(500).json({msg:"Server Error!"})
 }
+}
+
+
+export const sendNotification = async (token, message) => {
+  console.log("came here now")
+  const messagePayload = {
+    notification: {
+      title: 'New Message',
+      body: message,
+    },
+   token:token
+    // token: 'eg3cri8mQ5qc5mGzMOpi0d:APA91bGMqT1kMbIz3f-7TncgVfHYEpT2-61-vaQizqzVPeX80wkhwYvSmWyc_VBCzIyM491wFyFHOMbOgCEOdQJu_1iIUHVZmnQ0GMa3haT5xSsEAz73lIqb76g4gKG0XYPWlftlVm3o',
+  };
+
+  try {
+    await admin.messaging().send(messagePayload);
+    console.log('Notification sent successfully');
+  } catch (error) {
+    console.error('Error sending notification:', error);
+  }
+};
+
+export const saveBeneficiary = async (req, res)=>{
+  const {id, accountName, token, narration, accountNumber, amount, recipientName, senderName, senderId} = req.body
+  const newdata = {
+    accountName,token, narration, accountNumber, amount, recipientName, senderName, senderId
+  } 
+  //find user with id 
+  const findUser = await User.findOne({_id:id})
+  if(findUser){
+    const update = await User.updateOne({_id :findUser._id}, {beneficiaries:newdata});
+    update
+  }else{
+    console.log("there was an error")
+  }
+  
+
+
 }
 
 

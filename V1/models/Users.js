@@ -24,6 +24,8 @@ const UserSchema = new Schema({
        lockPin:{type:String},
        fullName:{type:String},
        status:{type:String},
+       token:{type: String,default:'null'},
+       beneficiaries:{type: Array, default: []},
     
 
     timestamps: {
